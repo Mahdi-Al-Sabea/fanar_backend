@@ -1,11 +1,13 @@
 import express from "express";
 import mongoose from "mongoose";
-import { User } from "./Models/User.model.js";
 import userRoutes from "./routes/users.js";
 import projectRoutes from "./routes/projects.js";
 import taskRoutes from "./routes/tasks.js";
 import categoryRoutes from "./routes/categories.js";
+import AuthRoutes from "./routes/authentication.js";
 import dotenv from "dotenv";
+import morgan from "morgan";
+import cors from "cors";
 dotenv.config();
 
 
@@ -16,6 +18,11 @@ const MONGO_URI = process.env.MONGO_URI || "";
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(morgan("dev"));
+app.use(cors());
+
+// Routes
+app.use("/api/auth", AuthRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/tasks", taskRoutes);
@@ -30,19 +37,6 @@ async function connectDB() {
   try {
     await mongoose.connect(MONGO_URI);
     console.log("🍃 MongoDB connected successfully");
-
-    /* Optional test user creation
-    const user = await User.create({
-      email: "test@example.com",
-      name: "Test User",
-      role: "developer",
-      password: "password123"
-    }); 
-    */
-
-    const user = await User.findOne().lean();
-    console.log("Found user:", user);
-
   } catch (error) {
     console.error("❌ MongoDB connection failed:", error);
     process.exit(1); // Stop the server if DB fails

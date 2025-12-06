@@ -1,23 +1,34 @@
-import { User } from "../Models/User.model.js";
+import jwt from "jsonwebtoken";
 
+export const authMiddleware = (req, res, next) => {
+  const header = req.headers.authorization;
 
-export const authMiddleware = async (req, res, next) => {
-  const userId = req.header("x-user-id");
-  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+  if (!header?.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Missing or invalid Authorization header" });
+  }
 
-  const user = await User.findById(userId);
-  if (!user) return res.status(401).json({ error: "User not found" });
+  const token = header.split(" ")[1];
 
-  req.user = user;
-  next();
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // attach user info
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
 };
-
 
 export const permit = (...allowedRoles) => {
   return (req, res, next) => {
-    if (!req.user || !allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({ error: "Forbidden: Access denied" });
+     console.log(req.user);
+    if (!req.user) {
+      return res.status(401).json({ message: "Not authenticated" });
     }
+     console.log("Allowed roles for this route:", allowedRoles);
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: "Forbidden: Access denied" });
+    }
+
     next();
   };
 };

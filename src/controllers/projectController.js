@@ -6,7 +6,7 @@ export const createProject = async (req, res) => {
     const { title, description, dueDate, teamLeadId } = req.body;
 
    
-    const assignedTeamLeadId = req.user.role === "teamLead" ? req.user._id : teamLeadId;
+    const assignedTeamLeadId = req.user.role === "teamLead" ? req.user.id : teamLeadId;
 
     const project = await Project.create({
       title,
@@ -28,7 +28,7 @@ export const getProjects = async (req, res) => {
     if (req.user.role === "superAdmin") {
       projects = await Project.find().populate("teamLeadId", "name email");
     } else if (req.user.role === "teamLead") {
-      projects = await Project.find({ teamLeadId: req.user._id }).populate("teamLeadId", "name email");
+      projects = await Project.find({ teamLeadId: req.user.id }).populate("teamLeadId", "name email");
     } else {
       return res.status(403).json({ message: "Forbidden" });
     }
