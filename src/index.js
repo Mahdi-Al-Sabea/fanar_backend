@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import { User } from "./Models/User.model.js";
 import userRoutes from "./routes/users.js";
 import projectRoutes from "./routes/projects.js";
+import taskRoutes from "./routes/tasks.js";
+import categoryRoutes from "./routes/categories.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -16,7 +18,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/users", userRoutes);
 app.use("/api/projects", projectRoutes);
- 
+app.use("/api/tasks", taskRoutes);
+app.use("/api/categories" , categoryRoutes);
 // Simple test route
 app.get("/", (req, res) => {
   res.json({ success: true, message: "API is running 🚀" });
