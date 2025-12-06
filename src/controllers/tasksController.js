@@ -1,4 +1,4 @@
-import { Task } from "../Models/Task.js";
+import { Task } from "../Models/Task.model.js";
 import { Project } from "../Models/Project.model.js";
 import { UserRole } from "../Models/User.model.js";
 
