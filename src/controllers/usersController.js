@@ -24,7 +24,7 @@ export const createUser = async (req, res) => {
 
   export const getUsers = async (req, res) => {
     try {
-      const users = await User.find().select("-password");
+      const users = await User.find().select("-password").where("role").ne(UserRole.SUPER_ADMIN);
       res.json(users);
     } catch (err) {
       res.status(500).json({ error: "Server error" });
@@ -32,7 +32,9 @@ export const createUser = async (req, res) => {
   };
 
   export const updateUser = async(req , res) =>{
+    console.log("Update user request params:");
     try{
+      console.log("Update user request body:", req.body);
     const updated = await User.findByIdAndUpdate(
       req.params.id,
       req.body,
