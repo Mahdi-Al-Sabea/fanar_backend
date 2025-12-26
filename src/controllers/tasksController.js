@@ -29,19 +29,25 @@ export const createTask = async (req, res) => {
 export const getTasks = async (req, res) => {
   try {
     const user = req.user;
+    const { projectId } = req.query;
 
-    let tasks;
+    let filter = {};
 
+    // Role-based filtering
     if (user.role === UserRole.SUPER_ADMIN) {
-      tasks = await Task.find();
+      filter = {};
+    } else if (user.role === UserRole.TEAM_LEAD) {
+      filter.teamLeadId = user._id;
+    } else {
+      filter.userId = user._id;
     }
-    else if (user.role === UserRole.TEAM_LEAD) {
-      tasks = await Task.find({ teamLeadId: user._id });
+
+    // Optional project filter
+    if (projectId) {
+      filter.projectId = projectId;
     }
-    else {
-   
-      tasks = await Task.find({ userId: user._id });
-    }
+
+    const tasks = await Task.find(filter).populate("userId", "name email role").populate("teamLeadId", "name email role");
 
     return res.json(tasks);
   } catch (err) {
