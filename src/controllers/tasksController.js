@@ -37,17 +37,19 @@ export const getTasks = async (req, res) => {
     if (user.role === UserRole.SUPER_ADMIN) {
       filter = {};
     } else if (user.role === UserRole.TEAM_LEAD) {
-      filter.teamLeadId = user._id;
+      filter.teamLeadId = user.id;
     } else {
-      filter.userId = user._id;
+      filter.userId = user.id;
     }
 
     // Optional project filter
     if (projectId) {
       filter.projectId = projectId;
     }
+    console.log(user);
+    console.log(filter);
 
-    const tasks = await Task.find(filter).populate("userId", "name email role").populate("teamLeadId", "name email role");
+    const tasks = await Task.find(filter).populate("userId", "name email role").populate("teamLeadId", "name email role").populate("categoryId", "title").populate("projectId", "title");
 
     return res.json(tasks);
   } catch (err) {
@@ -64,22 +66,22 @@ export const updateTask = async (req, res) => {
 
 
     if (user.role === UserRole.SUPER_ADMIN) {
-      const updated = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      const updated = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true }).populate("userId", "name email role").populate("teamLeadId", "name email role").populate("categoryId", "title").populate("projectId", "title");
       return res.json(updated);
     }
 
 
     if (user.role === UserRole.TEAM_LEAD) {
-      if (task.teamLeadId.toString() !== user._id.toString()) {
+      if (task.teamLeadId.toString() !== user.id.toString()) {
         return res.status(403).json({ error: "Not your project" });
       }
-      const updated = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      const updated = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true }).populate("userId", "name email role").populate("teamLeadId", "name email role").populate("categoryId", "title").populate("projectId", "title");
       return res.json(updated);
     }
 
 
     if (user.role === UserRole.DEVELOPER) {
-      if (task.userId.toString() !== user._id.toString()) {
+      if (task.userId.toString() !== user.id.toString()) {
         return res.status(403).json({ error: "Not your task" });
       }
 
@@ -91,7 +93,7 @@ export const updateTask = async (req, res) => {
         req.params.id,
         { status: req.body.status },
         { new: true }
-      );
+      ).populate("userId", "name email role").populate("teamLeadId", "name email role").populate("categoryId", "title").populate("projectId", "title");
 
       return res.json(updated);
     }
@@ -115,7 +117,7 @@ export const deleteTask = async (req, res) => {
     }
 
     if (user.role === UserRole.TEAM_LEAD) {
-      if (task.teamLeadId.toString() !== user._id.toString()) {
+      if (task.teamLeadId.toString() !== user.id.toString()) {
         return res.status(403).json({ error: "Not your project/task" });
       }
       await task.deleteOne();

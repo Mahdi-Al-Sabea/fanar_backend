@@ -4,7 +4,7 @@ import {Task} from "../Models/Task.model.js";
 
 export const getDashboard = async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments();
+    const totalUsers = await User.countDocuments({"role": { $ne: "superAdmin" } });
     const totalProjects = await Project.countDocuments();
     const totalTasks = await Task.countDocuments();
 
