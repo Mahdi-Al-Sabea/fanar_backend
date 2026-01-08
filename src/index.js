@@ -5,6 +5,7 @@ import projectRoutes from "./routes/projects.js";
 import taskRoutes from "./routes/tasks.js";
 import categoryRoutes from "./routes/categories.js";
 import AuthRoutes from "./routes/authentication.js";
+import dashboardRoutes from "./routes/dashboard.routes.js";
 import dotenv from "dotenv";
 import morgan from "morgan";
 import cors from "cors";
@@ -27,6 +28,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/categories" , categoryRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 // Simple test route
 app.get("/", (req, res) => {
   res.json({ success: true, message: "API is running 🚀" });
